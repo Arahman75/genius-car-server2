@@ -2,6 +2,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const app = express();
 const cors = require('cors');
+var jwt = require('jsonwebtoken');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 
@@ -21,7 +22,18 @@ async function run() {
         await client.connect();
 
         const serviceCollection = client.db('geniusCar').collection('service');
+        const orderCollection = client.db('geniusCar').collection('order');
 
+// auth jwt token system
+app.post('/login', async(req, res)=>{
+    const user = req.body;
+    const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET,{
+        expiresIn: '1d'
+    })
+    res.send({accessToken});
+})
+
+        // services api
         // get data from mongodb server all data
         app.get('/service', async (req, res) => {
             const query = {};
@@ -51,6 +63,24 @@ async function run() {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
             const result = await serviceCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        // order collection api
+
+        // data get from order
+app.get('/order', async(req, res)=>{
+    const email = req.query.email;
+    const query ={email: email};
+    const cursor = orderCollection.find(query);
+    const orders = await cursor.toArray();
+    res.send(orders);
+})
+
+        // data post from order
+        app.post('/order', async(req, res)=>{
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
             res.send(result);
         })
 
