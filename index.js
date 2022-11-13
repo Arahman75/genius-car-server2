@@ -135,6 +135,11 @@ run().catch(console.dir);
 // }
 // run().catch(console.dir);
 
+// practice for heroku login
+app.get('/friend', (req, res)=>{
+    res.send('Hello world! her friend is coming soon');
+})
+
 app.get('/', (req, res) => {
     res.send('Showing the genius car service');
 })
